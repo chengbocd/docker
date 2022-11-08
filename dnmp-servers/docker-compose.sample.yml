@@ -32,7 +32,7 @@ services:
     build:
       context: ./services/php
       args:
-        PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
+        PHP_VERSION: php:${PHP_VERSION}
         CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
         PHP_EXTENSIONS: ${PHP_EXTENSIONS}
         TZ: "$TZ"
@@ -196,7 +196,7 @@ services:
       - "${ETCD_HOST_PORT_ONE}:2379"
       - "${ETCD_HOST_PORT_TWO}:2380"
     volumes:
-      - ${DATA_DIR}/etcd:/data/:rw
+      - ${DATA_DIR}/etcd:/bitnami/etcd/data/:rw
     restart: always
     environment:
       ALLOW_NONE_AUTHENTICATION: yes
@@ -206,9 +206,9 @@ services:
 
   kafka:
     container_name: kafka
-    image: ${KFAKA_VERSION}
+    image: ${KAFKA_VERSION}
     ports:
-      - "${KFAKA_HOST_PORT}:9092"
+      - "${KAFKA_HOST_PORT}:9092"
     environment:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_MESSAGE_MAX_BYTES: 2000000
@@ -224,7 +224,7 @@ services:
       ALLOW_PLAINTEXT_LISTENER: yes
       TZ: "$TZ"
     volumes:
-      - ${DATA_DIR}/kafka:/data/:rw
+      - ${DATA_DIR}/kafka:/bitnami/kafka:rw
     restart: always
     networks:
       - default
