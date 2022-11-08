@@ -199,6 +199,7 @@ services:
       - ${DATA_DIR}/etcd:/data/:rw
     restart: always
     environment:
+      ALLOW_NONE_AUTHENTICATION: yes
       TZ: "$TZ"
     networks:
       - default
