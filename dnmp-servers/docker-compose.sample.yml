@@ -204,6 +204,19 @@ services:
     networks:
       - default
 
+  mongoDb:
+    image: ${MONGODB_VERSION}
+    container_name: mongoDb
+    ports:
+      - "${MONGODB_HOST_PORT}:27017"
+    volumes:
+      - ${DATA_DIR}/etcd:/bitnami/mongodb/data/:rw
+    restart: always
+    environment:
+      TZ: "$TZ"
+    networks:
+      - default
+
   kafka:
     container_name: kafka
     image: ${KAFKA_VERSION}
