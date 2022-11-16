@@ -209,21 +209,26 @@ services:
     ports:
       - "${KAFKA_ZK_HOST_PORT}:2181"
     container_name: zookeeper
-    volumes:
-      - /etc/localtime:/etc/localtime
     environment:
       TZ: "$TZ"
+      # 匿名登录--必须开启
+      ALLOW_ANONYMOUS_LOGIN: yes
     restart: always
+    networks:
+      - default
 
 
   kafka:
     image: ${KAFKA_VERSION}
+    build:
+      args:
+        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
     container_name: kafka
     restart: always
     ports:
       - "${KAFKA_HOST_PORT}:9092"
     environment:
-      TZ: "$TZ"
+      TZ: $TZ
       KAFKA_BROKER_ID: 0
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "test_go"
@@ -233,11 +238,12 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       ALLOW_PLAINTEXT_LISTENER: yes
     volumes:
-      - ${DATA_DIR}/kafka:/kafka/kafka\-logs\:rw
+      - ${DATA_DIR}/kafka:/bitnami/kafka/data/:rw
     networks:
       - default
     depends_on:
       - zookeeper
+
 
   #  memcached:
   #    image: memcached:${MEMCACHED_VERSION}
