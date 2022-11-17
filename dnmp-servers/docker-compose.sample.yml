@@ -4,7 +4,7 @@ services:
     build:
       context: ./services/nginx
       args:
-        NGINX_VERSION: nginx:${NGINX_VERSION}
+        NGINX_VERSION: ${NGINX_VERSION}
         CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
         NGINX_INSTALL_APPS: ${NGINX_INSTALL_APPS}
     container_name: nginx
@@ -38,7 +38,7 @@ services:
         TZ: "$TZ"
     container_name: php
     expose:
-      - 9501
+      - 9701
     extra_hosts:
       - "www.site1.com:172.17.0.1"
     volumes:
@@ -213,6 +213,8 @@ services:
       TZ: "$TZ"
       # 匿名登录--必须开启
       ALLOW_ANONYMOUS_LOGIN: yes
+    volumes:
+      - ${DATA_DIR}/zookeeper:/bitnami/zookeeper/data/:rw
     restart: always
     networks:
       - default
@@ -227,16 +229,15 @@ services:
     restart: always
     ports:
       - "${KAFKA_HOST_PORT}:9092"
+      - '9093:9093'#本机用这个端口访问 9093
     environment:
-      TZ: $TZ
-      KAFKA_BROKER_ID: 0
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "test_go"
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://127.0.0.1:9092
-      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT"
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      ALLOW_PLAINTEXT_LISTENER: yes
+      - TZ=$TZ
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
     volumes:
       - ${DATA_DIR}/kafka:/bitnami/kafka/data/:rw
     networks:
@@ -299,23 +300,6 @@ services:
   #      - REDIS_1_HOST=redis
   #      - REDIS_1_PORT=6379
   #      - TZ=$TZ
-
-  mongodb:
-    image: mongo:${MONGODB_VERSION}
-    container_name: mongodb
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: "${MONGODB_INITDB_ROOT_USERNAME}"
-      MONGO_INITDB_ROOT_PASSWORD: "${MONGODB_INITDB_ROOT_PASSWORD}"
-      TZ: "$TZ"
-    volumes:
-      - ${DATA_DIR}/mongo:/data/db:rw
-      - ${DATA_DIR}/mongo_key:/mongo:rw
-    ports:
-      - "${MONGODB_HOST_PORT}:27017"
-    networks:
-      - default
-    command:
-      --auth
 
   #  adminmongo:
   #    image: mrvautin/adminmongo
